@@ -17,15 +17,7 @@ $(document)
             success: function(data) {
                 let text = input.val();
                 input.val('');
-                let prototype = $('.message-from-me-prototype').clone();
-                prototype.removeClass('message-from-me-prototype');
-                prototype.find('p.message-text').text(text);
-
-                let date = new Date();
-	            let time = date.getHours()+":"+date.getMinutes();
-                
-                prototype.find('p.message-time').text(time)
-                $('.chat-window').append(prototype);
+                drawMessage(data);
             }
         });
     })
@@ -39,19 +31,18 @@ chatWindow.scroll(function () {
             data: {offset: 10},
             success: function(data) {
                 $(data).each( function (e) {
-                    drawMessage(this);
+                    drawMessage(this, 'top');
                 });
             }
         })
     }
 })
 
-function drawMessage(message)
+function drawMessage(message, place = 'bottom')
 {
     if(chatWindow.find('.chat-message[data-message-id="' + message.id + '"]').length > 0) {
         return false;
     }
-
 
     let prototypeClass = 'message-to-me-prototype';
     if(message.sender != null && message.sender.id == currentUser){
@@ -68,5 +59,11 @@ function drawMessage(message)
 	let time = date.getHours()+":"+date.getMinutes();
 
     prototype.find('p.message-time').text(time)
-    $('.chat-window').prepend(prototype);
+
+    if(place === 'bottom'){
+        chatWindow.append(prototype);
+    }
+    else{
+        chatWindow.prepend(prototype);
+    }
 }
