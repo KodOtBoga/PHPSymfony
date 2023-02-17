@@ -1,0 +1,22 @@
+{% extends "base.html.twig" %}
+{% block body %}
+<div class="btn btn-danger">
+    Hello!
+</div>
+
+{% if result %}
+    {% for i, var in result %}
+        <div style="color: {{ var['color'] }};">{{ var['value'] }}</div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="">
+<ul class="list">
+    {% for i, var in data %}
+        <p>{{ var }}</p>
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+{% endblock %}

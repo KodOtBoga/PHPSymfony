@@ -44,7 +44,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
     public function findUsersByUsername(string $username)
     {
-        $this->createQueryBuilder('p')
+        return $this->createQueryBuilder('p')
         ->andWhere('p.username like ' . '%' . ' :us ' . '%')
         ->setParameter('us', $username)
         ->getQuery()
@@ -53,7 +53,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
     public function findNewUsers(\DateTime $date)
     {
-        $this->createQueryBuilder('p')
+        return $this->createQueryBuilder('p')
         ->andWhere('p.createdAt > :day ')
         ->setParameter('day', $date)
         ->getQuery()

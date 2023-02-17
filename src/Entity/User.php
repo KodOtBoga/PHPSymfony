@@ -25,22 +25,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 180, unique: true)]
     #[Groups('message')]
     #[NotBlank]
-    #[Regex('/^\w{3,}$/')]
+    #[Regex('/^\w{3,180}$/')]
     private ?string $username = null;
 
     #[ORM\Column]
     private array $roles = ['ROLE_USER'];
 
-    /**
-     * @var string The hashed password
-     */
     #[ORM\Column]
     #[NotBlank]
-    #[Regex('^.\w{3,180}$')]
+    #[Regex('/^.{3,180}$/')]
     private ?string $password = null;
 
     #[ORM\OneToOne(targetEntity: Image::class)]
+    #[Groups('message')]
     private ?Image $image = null;
+
+    private $plainPassword;
 
     public function getId(): ?int
     {
@@ -126,13 +126,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 
-	public function getImage(): ?Image{
+	public function getImage(): ?Image 
+    {
 		return $this->image;
 	}
 	
-
-	public function setImage(?Image $image): self {
+	public function setImage(?Image $image): self 
+    {
 		$this->image = $image;
+		return $this;
+	}
+
+	public function getPlainPassword() 
+    {
+		return $this->plainPassword;
+	}
+	
+	public function setPlainPassword($plainPassword): self 
+    {
+		$this->plainPassword = $plainPassword;
 		return $this;
 	}
 }

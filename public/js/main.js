@@ -46,6 +46,7 @@ chatWindow.scroll(function () {
 });
 
 $(document).ready(function () {
+    if(chatWindow.length > 0){
     chatWindow.scrollTop(chatWindow[0].scrollHeight)
     setInterval(function () {
         // $.ajax({
@@ -61,7 +62,8 @@ $(document).ready(function () {
         $(messages).each( function (e) {
             drawMessage(this);
         })
-    }, 2000);
+    }, 5000);
+}
 });
 
 function fetchMessages(offset = 0)
@@ -95,6 +97,9 @@ function drawMessage(message, place = 'bottom')
     prototype.data('message-id', message.id);
     prototype.attr('data-message-id', message.id);
     prototype.find('p.message-text').text(message.text);
+    if(message.sender && message.sender.image){
+        prototype.find('img.message-image').attr('src', '/' + message.sender.image.path);
+    }
 
     let date = new Date(message.sentAt);
 	let time = date.getHours()+":"+date.getMinutes();
@@ -108,3 +113,20 @@ function drawMessage(message, place = 'bottom')
         chatWindow.prepend(prototype);
     }
 }
+
+const imageUploadUrl = '/image/upload';
+$(document)
+    .on('change', '.upload-image', function(e) {
+        let fd = new FormData();
+        fd.append('file', this.files[0]);
+        $.ajax({
+            url: imageUploadUrl,
+            method: 'POST',
+            data: fd,
+            contentType: false,
+            processData: false,
+            success: function(data) {
+                $('input.image-id').val(data.id);
+            },
+        });
+    })
