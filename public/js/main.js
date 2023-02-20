@@ -130,3 +130,18 @@ $(document)
             },
         });
     })
+
+$(document)
+    .on('click', '.chat-user', function (e) {
+        e.preventDefault();
+        let userId = $(this).data('user-id');
+        $.ajax({
+            url: '/chat/personal',
+            method: 'GET',
+            data: {userId: userId},
+            success: function(data) {
+
+            }
+        });
+    })
+;
