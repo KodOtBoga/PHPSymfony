@@ -10,7 +10,7 @@
                 {{ chat.title ?? 'Private' }} 
                 <a class="btn btn-sm btn-info" href="{{ path('chat_edit', {'chat': chat.id}) }}">Edit</a>
                 {% if is_granted('ROLE_ADMIN') %}
-                <a class="btn btn-sm btn-danger" href="{{ path('chat_delete', {'chat': chat.id}) }}">Delete</a>
+                <a class="btn btn-sm btn-danger delete_chat" href="{{ path('chat_delete', {'chat': chat.id}) }}">Delete</a>
                 {% endif %}
             </div>
         {% else %}

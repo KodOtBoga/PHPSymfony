@@ -3,12 +3,12 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 
@@ -151,4 +151,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 		$this->plainPassword = $plainPassword;
 		return $this;
 	}
+
+
+    public function getChats(): Collection
+    {
+        return $this->chats;
+    }
+
+
+    public function setChats(Collection $chats): User
+    {
+        $this->chats = $chats;
+        return $this;
+    }
 }

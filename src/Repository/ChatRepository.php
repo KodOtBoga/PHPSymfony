@@ -2,32 +2,29 @@
 
 namespace App\Repository;
 
-use App\Entity\User;
 use App\Entity\Chat;
+use App\Entity\Message;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-class ChatRepository extends ServiceEntityRepository 
+
+class ChatRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $managerRegistry)
     {
         parent::__construct($managerRegistry, Chat::class);
     }
 
-    public function findPersonalChat(User $firstUser, User $secondUser)
+    public function findChatsWithUser(User $user)
     {
         $qb = $this->createQueryBuilder('c');
         $qb
             ->innerJoin('c.users', 'u')
-            ->andWhere('u.id = :firstUser')
-            ->andWhere('u.id = :secondUser')
+            ->andWhere('u.id = :user')
+            ->setParameter('user', $user)
+        ;
 
-            ->setParameter('firstUser', $firstUser)
-            ->setParameter('secondUser', $secondUser)
-            ;
-
-            return $qb->getQuery()->getResult();
+        return $qb->getQuery()->getResult();
     }
-
-   
 }

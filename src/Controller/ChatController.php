@@ -7,6 +7,7 @@ use App\Form\ChatType;
 use App\Form\MessageType;
 use App\Repository\MessageRepository;
 use App\Repository\UserRepository;
+use App\Service\ChatService;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,34 +20,27 @@ class ChatController extends AbstractController
 {
 
     #[Route('/chat/{chat}', name: 'chat_view', requirements: ['chat' => '\d+'], methods: ['GET'])]
-    public function view(Chat $chat, MessageRepository $messageRepository, UserRepository $userRepository)
+    public function view(Chat $chat, MessageRepository $messageRepository, UserRepository $userRepository, ChatService $cs)
     {
+        $resultUsers = [];
+
+        $users = $userRepository->findAllExcept($this->getUser());
+        foreach($users as $user) {
+            $chat = $cs->getOrCreatePersonalChat($this->getUser(), $user);
+            $resultUsers[] = [
+                'user' => $user,
+                'chat' => $chat->getId(),
+                'lastMessage' =>  $chat->getMessages()->first()
+            ];
+        }
+
         return $this->render('chat.html.twig', [
-            'users' => $userRepository->findAllExcept($this->getUser()),
+            'chatData'    => $resultUsers,
             'messages' => array_reverse($messageRepository->findMessagesPaginated($chat)),
             'chat'     => $chat,
             'form'     => $this->createForm(MessageType::class)->createView(),
         ]);
     }
-
-    #[Route('/chat/personal', name: 'app_chat_create_personal')]
-    public function getOrCreatePersonalChat(Request $request, EntityManagerInterface $em, UserRepository $userRepository)
-    {
-        $user = $userRepository->findOneBy(['id' => $request->query->get('userId')]);
-        if(!$user){
-            throw $this->createNotFoundException();
-        }
-        $currentUser = $this->getUser();
-        $chat = new Chat();
-        $chat
-            ->addUserToChat($user)
-            ->addUserToChat($currentUser)
-        ;
-        // $em->persist($chat);
-        // $em->flush();
-
-    }
-
 
     #[IsGranted('ROLE_MANAGER')]
     #[Route('/chat/create', name: 'chat_create')]
@@ -70,6 +64,23 @@ class ChatController extends AbstractController
         ]);
     }
 
+    #[Route('/chat/personal', name: 'app_chat_create_personal')]
+    public function getOrCreatePersonalChat(
+        Request $request,
+        UserRepository $userRepository,
+        ChatService $chatService,
+    ) {
+        $user = $userRepository->findOneBy(['id' => $request->query->get('userId')]);
+        if (!$user) {
+            throw $this->createNotFoundException();
+        }
+        $currentUser = $this->getUser();
+
+        $chat = $chatService->getOrCreatePersonalChat($currentUser, $user);
+
+        return $this->json(['id' => $chat->getId()]);
+    }
+
     #[IsGranted('ROLE_MANAGER')]
     #[Route('/chat/edit/{chat}', name: 'chat_edit', requirements: ['chat' => '\d+'])]
     public function edit(Chat $chat, Request $request, EntityManagerInterface $em)
@@ -84,7 +95,6 @@ class ChatController extends AbstractController
         }
 
         return $this->render('chat_edit.html.twig', [
-            'messages' => $chat->getMessages(),
             'form' => $form->createView(),
         ]);
     }
@@ -99,20 +109,23 @@ class ChatController extends AbstractController
     }
 
     #[Route('/chat/{chat}/getMessages', name: 'app_get_messages')]
-    public function getLastMessages(Chat $chat, 
-    MessageRepository $messageRepository, 
-    SerializerInterface $serializer, 
-    Request $request)
+    public function getLastMessages(
+        Chat $chat,
+        MessageRepository $messageRepository,
+        SerializerInterface $serializer,
+        Request $request,
+    )
     {
-        $messages = $messageRepository->findMessagesPaginated($chat, 
-        $request->query->get('limit', 10), 
-        $request->query->get('offset', 0),
-    );
-
+        $messages = $messageRepository->findMessagesPaginated(
+            $chat,
+            $request->query->get('limit', 10),
+            $request->query->get('offset', 0),
+        );
 
         return new JsonResponse(
             data: $serializer->serialize($messages, 'json', ['groups' => ['message']]),
             json: true
         );
     }
+    
 }
