@@ -142,21 +142,11 @@ $(document)
     })
 ;
 
-$(document)
-    .on('click', '.delete_chat', function (e) {
+$(document).on('click', '.delete_chat', function (e) {
         e.preventDefault();
-        let form = $(this).closest('form');
-        let formData = form.serialize();
-        let input = form.find('input#message_text');
+        let id = $(this).data('chat-id')
         input.val('');
         $.ajax({
-            url: sendMessageURL,
-            method: 'POST',
-            data: formData,
-            success: function(data) {
-                drawMessage(data);
-            }
-        });
-    })
-
-;
+            url: '/chat/delete/' + $('.delete_chat').data('chat.id'),
+    });
+});
