@@ -160,9 +160,14 @@ $(document)
 
 $(document).on('click', '.delete_chat', function (e) {
         e.preventDefault();
-        let id = $(this).data('chat-id')
-        input.val('');
+        const url = $(this).attr('href');
+        const chatItem = $(this).closest('.chat_item')
         $.ajax({
-            url: '/chat/delete/' + id,
-    });
+            url: url,
+            method: 'DELETE',
+            success: function(data) {
+                chatItem.remove();
+            }
+        })
+    ;
 });
