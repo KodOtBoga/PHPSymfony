@@ -33,17 +33,15 @@ div.prototypes {
     height: 540px;
     overflow-y: scroll;
 }
-
 .chat-user {
     background-color: #f5f6f7;
     width: 200px;
     border-radius: 5px;
+    cursor: pointer;
 }
-
-.chat-user:hover{
-background-color: grey;
+.chat-user:hover {
+    background-color: #e4e4e4;
 }
-
 .chat-info {
     margin-top: 10px;
     max-width: 150px;
@@ -59,3 +57,45 @@ background-color: grey;
     margin-top: 10px;
     margin-left: 5px;
 }
+
+.message-content {
+    position: relative;
+}
+.reply-to-btn {
+    position: absolute;
+    right: 0;
+    top: -10px;
+    color: #fff;
+    background: #1e40f2;
+    border-radius: 50%;
+    padding: 0 4px;
+    cursor: pointer;
+}
+.reply-to-btn:hover {
+    background: #1632c2;
+}
+.form-container {
+    position: relative;
+}
+.reply-to-message {
+    position: absolute;
+    left: 65px;
+    top: -24px;
+    width: 458px;
+    background: #cccc;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+.chat-btn {
+    cursor: pointer;
+}
+
+
+/* 
+.reply-to-btn :hover{
+    color: #1e40f2 ;
+    background: #fff;
+    border-radius: 50%;
+    padding: 0 4px;
+    cursor: pointer;
+} */

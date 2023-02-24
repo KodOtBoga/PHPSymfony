@@ -6,12 +6,14 @@ let sendMessageURL = '/chat/' + chat.data('chat-id');
 let fetchMessageURL = sendMessageURL + '/getMessages';
 
 $(document)
-    .on('click', '#delete_chat', function (e) {
+    .on('click', '#send_message', function (e) {
         e.preventDefault();
         let form = $(this).closest('form');
         let formData = form.serialize();
         let input = form.find('input#message_text');
+        $('.replyToMessage').val('');
         input.val('');
+        toggleReplyBlock();
         $.ajax({
             url: sendMessageURL,
             method: 'POST',
@@ -21,13 +23,30 @@ $(document)
             }
         });
     })
+    .on('click', '.reply-to-btn', function(e) {
+        const messageId = $(this).closest('.chat-message').data('message-id');
+        $('.replyToMessage').val(messageId);
+        const messageText = $(this).next().text();
+        toggleReplyBlock(messageText);
+    })
 
 ;
+function toggleReplyBlock(messageText = '')
+{
+    const replyBlock = $('.reply-to-message');
+    if (!messageText) {
+        replyBlock.hide();
+    } else {
+        replyBlock.show();
+    }
+    
+    replyBlock.find('p').text(messageText);
+}
+
 chatWindow.scroll(function () {
     if (chatWindow.scrollTop() == 0) {
         let firstMessage = chatWindow.find('.chat-message:first');
         if (firstMessage.length > 0) {
-
             let messages = fetchMessages(chatWindow.find('.chat-message').length);
             $(messages).each(function () {
                 drawMessage(this, 'top');
@@ -98,7 +117,6 @@ function drawMessage(message, place = 'bottom')
 const imageUploadURL = '/image/upload';
 
 let currentChatId = null;
-
 $(document)
     .on('change', '.upload-image', function(e) {
         let fd = new FormData();
@@ -114,31 +132,29 @@ $(document)
             },
         });
     })
-
     .on('click', '.chat-user', function (e) {
         const userDiv = $(this);
         const userId = userDiv.data('user-id');
         const chatId = userDiv.data('chat-id');
 
-        if(!currentChatId || chatId !== currentChatId)
-        {
-        $.ajax({
-            url: '/chat/personal',
-            method: 'GET',
-            data: {userId: userId},
-            async: false,
-            success: function (data) {
-                currentChatId = data.id;
-                userDiv.data('chat-id', data.id);
-            }
-        })
-        sendMessageURL ='/chat/' + currentChatId;
+        if (!currentChatId || chatId !== currentChatId) {
+            $.ajax({
+                url: '/chat/personal',
+                method: 'GET',
+                data: {userId: userId},
+                async: false,
+                success: function (data) {
+                    currentChatId = data.id;
+                    userDiv.data('chat-id', data.id);
+                }
+            })
+        }
+        sendMessageURL = '/chat/' + currentChatId;
         fetchMessageURL = sendMessageURL + '/getMessages';
         chatWindow.find('.chat-message').remove();
-        $(fetchMessages()).each(function(e){
+        $(fetchMessages()).each(function(e) {
             drawMessage(this, 'top');
         });
-        }
     })
 ;
 
@@ -147,6 +163,6 @@ $(document).on('click', '.delete_chat', function (e) {
         let id = $(this).data('chat-id')
         input.val('');
         $.ajax({
-            url: '/chat/delete/' + $('.delete_chat').data('chat.id'),
+            url: '/chat/delete/' + id,
     });
 });
